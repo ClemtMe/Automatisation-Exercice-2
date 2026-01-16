@@ -1,0 +1,25 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Ce projet est un petit annuaire d'entreprises.  \r Il permet de lister plusieurs entreprises, et d'en voir leur bureaux et employées.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js --ignore-path .gitignore ",
+    "lint:fix": "eslint . --ext .js --ignore-path .gitignore --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ClemtMe/Automatisation-Exercice-2.git"
+  },
+  "author": "clemnt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ClemtMe/Automatisation-Exercice-2/issues"
+  },
+  "homepage": "https://github.com/ClemtMe/Automatisation-Exercice-2#readme",
+  "dependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0"
+  }
+}
