@@ -25,7 +25,7 @@ class PopulateDatabaseCommand extends Command
         $this->setDescription('Populate database');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output ): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Populate database...');
 
@@ -42,7 +42,6 @@ class PopulateDatabaseCommand extends Command
         $nbCompanies = 10;
 
         for ($i = 0; $i < $nbCompanies; $i++) {
-
             // 2. Création de l'Entreprise
             $companyId = $db->table('companies')->insertGetId([
                 'name'       => $faker->company,
@@ -58,7 +57,6 @@ class PopulateDatabaseCommand extends Command
             $nbOffices = rand(1, 4);
 
             for ($j = 0; $j < $nbOffices; $j++) {
-
                 $city = $faker->city;
 
                 // 3. Création du Bureau
