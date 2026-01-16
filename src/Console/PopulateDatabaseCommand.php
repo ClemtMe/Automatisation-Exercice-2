@@ -2,10 +2,8 @@
 
 namespace App\Console;
 
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\Office;
-use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
+use Faker\Factory;
 use Slim\App;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,32 +38,74 @@ class PopulateDatabaseCommand extends Command
         $db->getConnection()->statement("TRUNCATE `companies`");
         $db->getConnection()->statement("SET FOREIGN_KEY_CHECKS=1");
 
+        $faker = Factory::create("fr_FR");
+        $nbCompanies = 10;
 
-        $db->getConnection()->statement("INSERT INTO `companies` VALUES
-    (1,'Stack Exchange','0601010101','stack@exchange.com','https://stackexchange.com/','https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Verisure_information_technology_department_at_Ch%C3%A2tenay-Malabry_-_2019-01-10.jpg/1920px-Verisure_information_technology_department_at_Ch%C3%A2tenay-Malabry_-_2019-01-10.jpg', now(), now(), null),
-    (2,'Google','0602020202','contact@google.com','https://www.google.com','https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Google_office_%284135991953%29.jpg/800px-Google_office_%284135991953%29.jpg?20190722090506',now(), now(), null)
-        ");
+        for ($i = 0; $i < $nbCompanies; $i++) {
 
-        $db->getConnection()->statement("INSERT INTO `offices` VALUES
-    (1,'Bureau de Nancy','1 rue Stanistlas','Nancy','54000','France','nancy@stackexchange.com',NULL,1, now(), now()),
-    (2,'Burea de Vandoeuvre','46 avenue Jeanne d\'Arc','Vandoeuvre','54500','France',NULL,NULL,1, now(), now()),
-    (3,'Siege sociale','2 rue de la primatiale','Paris','75000','France',NULL,NULL,2, now(), now()),
-    (4,'Bureau Berlinois','192 avenue central','Berlin','12277','Allemagne',NULL,NULL,2, now(), now())
-        ");
+            // 2. Création de l'Entreprise
+            $companyId = $db->table('companies')->insertGetId([
+                'name'       => $faker->company,
+                'phone'      => $faker->phoneNumber,
+                'email'      => $faker->companyEmail,
+                'website'    => $faker->url,
+                'image'  => 'https://picsum.photos/640/480?random=' . rand(1, 50000),
+                'created_at' => $faker->dateTimeThisYear,
+                'updated_at' => Carbon::now(),
+            ]);
 
-        $db->getConnection()->statement("INSERT INTO `employees` VALUES
-     (1,'Camille','La Chenille',1,'camille.la@chenille.com',NULL,'Ingénieur', now(), now()),
-     (2,'Albert','Mudhat',2,'albert.mudhat@aqume.net',NULL,'Superviseur', now(), now()),
-     (3,'Sylvie','Tesse',3,'sylive.tesse@factice.local',NULL,'PDG', now(), now()),
-     (4,'John','Doe',4,'john.doe@generique.org',NULL,'Testeur', now(), now()),
-     (5,'Jean','Bon',1,'jean@test.com',NULL,'Developpeur', now(), now()),
-     (6,'Anais','Dufour',2,'anais@aqume.net',NULL,'DBA', now(), now()),
-     (7,'Sylvain','Poirson',3,'sylvain@factice.local',NULL,'Administrateur réseau', now(), now()),
-     (8,'Telma','Thiriet',4,'telma@generique.org',NULL,'Juriste', now(), now())
-        ");
+            $headOfficeId = null;
+            $nbOffices = rand(1, 4);
 
-        $db->getConnection()->statement("update companies set head_office_id = 1 where id = 1;");
-        $db->getConnection()->statement("update companies set head_office_id = 3 where id = 2;");
+            for ($j = 0; $j < $nbOffices; $j++) {
+
+                $city = $faker->city;
+
+                // 3. Création du Bureau
+                $officeId = $db->table('offices')->insertGetId([
+                    'name'       => "Bureau de " . $city,
+                    'address'    => $faker->streetAddress,
+                    'city'       => $city,
+                    'zip_code'    => $faker->postcode,
+                    'country'    => 'France',
+                    'email'      => $faker->email,
+                    'company_id' => $companyId,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+
+                // Le premier bureau créé devient le siège social
+                if ($j === 0) {
+                    $headOfficeId = $officeId;
+                }
+
+                $nbEmployees = rand(2, 10);
+
+                // 4. Création des employés (Insertion par lot possible pour la performance, mais boucle ici pour simplifier)
+                $employeesData = [];
+                for ($k = 0; $k < $nbEmployees; $k++) {
+                    $employeesData[] = [
+                        'first_name' => $faker->firstName,
+                        'last_name'  => $faker->lastName,
+                        'office_id'  => $officeId,
+                        'email'      => $faker->email,
+                        'phone'      => $faker->phoneNumber,
+                        'job_title'  => $faker->jobTitle,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ];
+                }
+                // Insertion en une seule requête pour tous les employés d'un bureau
+                $db->table('employees')->insert($employeesData);
+            }
+
+            // 5. Mise à jour du siège social
+            if ($headOfficeId) {
+                $db->table('companies')
+                    ->where('id', $companyId)
+                    ->update(['head_office_id' => $headOfficeId]);
+            }
+        }
 
         $output->writeln('Database created successfully!');
         return 0;
