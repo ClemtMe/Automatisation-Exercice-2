@@ -14,7 +14,10 @@ services:
 
     node:
         user: ${UID:-1000}:${GID:-1000}
+        command: npm run dev
         image: node:22-alpine
+        ports:
+            - "3000:3000"
         volumes:
             - .:/app
         working_dir: /app

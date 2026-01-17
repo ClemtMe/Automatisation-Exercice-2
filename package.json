@@ -1,12 +1,17 @@
 {
   "name": "app",
+  "private": true,
   "version": "1.0.0",
   "description": "Ce projet est un petit annuaire d'entreprises.  \r Il permet de lister plusieurs entreprises, et d'en voir leur bureaux et employées.",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/assets/script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .js --ignore-path .gitignore ",
-    "lint:fix": "eslint . --ext .js --ignore-path .gitignore --fix"
+    "lint:fix": "eslint . --ext .js --ignore-path .gitignore --fix",
+    "dev": "vite",
+    "build": "vite build --emptyOutDir",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -21,5 +26,8 @@
   "dependencies": {
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
   }
 }
